@@ -1,5 +1,12 @@
-const generateRandomUsername = () => {
-  return "user-" + Math.floor(Math.random() * 1000)
+const generateRandomUsername = (name) => {
+  return (
+    "user-" +
+    name.trim().toLowerCase().replace(/\s+/g, "-") +
+    "-" +
+    Date.now() +
+    "-" +
+    Math.floor(Math.random() * 1000)
+  )
 }
 
 module.exports = { generateRandomUsername }
