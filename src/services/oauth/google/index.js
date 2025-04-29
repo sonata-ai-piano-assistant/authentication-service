@@ -2,6 +2,7 @@ const OpenIDConnectStrategy = require("passport-openidconnect")
 const passport = require("passport")
 const User = require("../../../models/user.model")
 const { createUser } = require("../../user.service")
+const { generateRandomUsername } = require("../../../utils")
 
 module.exports = passport.use(
   process.env.GOOGLE_STRATEGY_NAME,
@@ -21,18 +22,31 @@ module.exports = passport.use(
       try {
         // Find user with matching Google ID
         const existingUser = await User.findOne({
-          oauthProvider: issuer,
-          oauthId: profile.id
+          $or: [
+            { email: profile.emails[0].value },
+            {
+              oauthAccounts: {
+                $elemMatch: {
+                  provider: issuer,
+                  oauthId: profile.id
+                }
+              }
+            }
+          ]
         })
         if (!existingUser) {
           // User doesn't exist yet, create a new user
           const newUserData = {
             firstname: profile.name.givenName,
             lastname: profile.name.familyName,
-            username: profile.displayName,
+            username: generateRandomUsername(profile.emails[0].value),
             email: profile.emails[0].value,
-            oauthProvider: process.env.GOOGLE_STRATEGY_NAME,
-            oauthId: profile.id
+            oauthAccounts: [
+              {
+                provider: process.env.GOOGLE_STRATEGY_NAME,
+                oauthId: profile.id
+              }
+            ]
           }
           // Save the new user to the database
           const newUser = await createUser(newUserData)

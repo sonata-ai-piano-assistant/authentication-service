@@ -1,7 +1,8 @@
-const generateRandomUsername = (name) => {
+const generateRandomUsername = (email) => {
+  const baseName = email.split("@")[0].toLowerCase().replace(/\s+/g, "-")
   return (
     "user-" +
-    name.trim().toLowerCase().replace(/\s+/g, "-") +
+    baseName.trim().toLowerCase().replace(/\s+/g, "-") +
     "-" +
     Date.now() +
     "-" +

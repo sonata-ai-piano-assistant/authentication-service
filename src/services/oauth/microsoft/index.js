@@ -54,8 +54,17 @@ module.exports = passport.use(
       try {
         // Find user with matching Microsoft ID
         const existingUser = await User.findOne({
-          oauthProvider: issuer,
-          oauthId: profile.id
+          $or: [
+            { email: profile.emails[0].value },
+            {
+              oauthAccounts: {
+                $elemMatch: {
+                  provider: issuer,
+                  oauthId: profile.id
+                }
+              }
+            }
+          ]
         })
         // User doesn't exist yet, create a new user
         if (!existingUser) {
@@ -66,8 +75,12 @@ module.exports = passport.use(
             lastname: userData.surname,
             username: generateRandomUsername(profile.emails[0].value),
             email: profile.emails[0].value,
-            oauthProvider: process.env.MICROSOFT_STRATEGY_NAME,
-            oauthId: profile.id
+            oauthAccounts: [
+              {
+                provider: process.env.MICROSOFT_STRATEGY_NAME,
+                oauthId: profile.id
+              }
+            ]
           }
           // Save the new user to the database
           const newUser = await createUser(newUserData)
