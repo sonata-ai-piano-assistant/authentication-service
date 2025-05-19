@@ -1,5 +1,16 @@
 const User = require("../models/user.model")
 
+const generateToken = (userID) => {
+  const jwt = require("jsonwebtoken")
+  return jwt.sign(
+    {
+      id: userID
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRATION }
+  )
+}
+
 const generateRandomUsername = async (email) => {
   const baseName = email.split("@")[0].toLowerCase().replace(/\s+/g, "-")
   const randomUsername =
@@ -21,4 +32,4 @@ const generateRandomUsername = async (email) => {
   return randomUsername
 }
 
-module.exports = { generateRandomUsername }
+module.exports = { generateRandomUsername, generateToken }

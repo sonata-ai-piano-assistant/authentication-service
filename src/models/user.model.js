@@ -56,15 +56,4 @@ userSchema.methods.sanitize = function () {
   }
 }
 
-userSchema.methods.generateToken = function () {
-  const jwt = require("jsonwebtoken")
-  return jwt.sign(
-    {
-      id: this._id
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRATION }
-  )
-}
-
 module.exports = mongoose.model("User", userSchema)

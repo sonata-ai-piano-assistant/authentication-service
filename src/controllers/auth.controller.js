@@ -1,5 +1,8 @@
 const User = require("../models/user.model")
+const jwt = require("jsonwebtoken")
 const { createUser } = require("../services/user.service")
+const { generateToken } = require("../utils")
+const setAuthCookie = require("../utils/setAuthCookie")
 
 const registerUser = async (req, res, next) => {
   try {
@@ -77,10 +80,14 @@ const loginUser = async (req, res, next) => {
         message: "Invalid credentials"
       })
     }
+    // Set the user ID in the session
+    req.session.userId = user._id
     // Return the user token
-    const token = user.generateToken()
+    const token = generateToken(user._id)
+    setAuthCookie(res, token)
+
     return res.status(200).json({
-      token
+      message: `${user.username} logged in successfully`
     })
   } catch (error) {
     return next({
@@ -90,4 +97,31 @@ const loginUser = async (req, res, next) => {
   }
 }
 
-module.exports = { registerUser, loginUser }
+const isAuthenticated = async (req, res, next) => {
+  try {
+    // Get the user token from the request
+    const token = req.headers.authorization.split(" ")[1]
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    // Find the user by ID
+    const user = await User.findById(decoded.id)
+    // If the user does not exist, return an error
+    if (!user) {
+      return next({
+        status: 401,
+        message: "Invalid token"
+      })
+    }
+    // Attach the user to the request object
+    return res.status(200).json({
+      user: user.sanitize()
+    })
+  } catch (error) {
+    return next({
+      status: 401,
+      message: "Invalid token"
+    })
+  }
+}
+
+module.exports = { registerUser, loginUser, isAuthenticated }
