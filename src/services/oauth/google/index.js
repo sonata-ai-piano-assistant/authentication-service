@@ -39,7 +39,7 @@ module.exports = passport.use(
           const newUserData = {
             firstname: profile.name.givenName,
             lastname: profile.name.familyName,
-            username: generateRandomUsername(profile.emails[0].value),
+            username: await generateRandomUsername(profile.emails[0].value),
             email: profile.emails[0].value,
             oauthAccounts: [
               {

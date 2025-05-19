@@ -5,7 +5,7 @@ const createUser = async (user) => {
   try {
     // hash the user's password
     if (user.password) {
-      user.password = await bcrypt.hash(user.password, process.env.HASH)
+      user.password = await bcrypt.hash(user.password, Number(process.env.HASH))
     }
     // Create a new user
     const newUser = new User(user)
