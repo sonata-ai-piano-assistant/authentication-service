@@ -16,15 +16,7 @@ const getUserById = async (req, res, next) => {
 
   // Return the user
   return res.json({
-    firstname: user.firstname,
-    lastname: user.lastname,
-    username: user.username,
-    email: user.email,
-    oauthProvider: user.oauthProvider,
-    oauthId: user.oauthId,
-    signupDate: user.signupDate,
-    subscription: user.subscription,
-    notifications: user.notifications
+    user: user.sanitize()
   })
 }
 
