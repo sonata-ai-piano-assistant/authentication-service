@@ -1,6 +1,5 @@
-const User = require("../models/user.model")
 const jwt = require("jsonwebtoken")
-const { createUser } = require("../services/user.service")
+const userService = require("../services/user.service")
 const { generateToken } = require("../utils")
 const setAuthCookie = require("../utils/setAuthCookie")
 
@@ -9,8 +8,7 @@ const registerUser = async (req, res, next) => {
     // Get the user data from the request
     const { firstname, lastname, username, email, password } = req.body
     // Check if the user already exists
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] })
-
+    const existingUser = await userService.getUserByIdentifier(email) || await userService.getUserByIdentifier(username)
     // If the user already exists, return an error
     if (existingUser) {
       return next({
@@ -19,15 +17,13 @@ const registerUser = async (req, res, next) => {
       })
     }
     // Create a new user
-    const user = await createUser({
+    const user = await userService.createUser({
       firstname,
       lastname,
       username,
       email,
       password
     })
-    // Save the user to the database
-    await user.save()
 
     // Send a welcome email
     // await fetch(`${process.env.EMAIL_SERVICE_URL}/send-email`, {
@@ -45,7 +41,7 @@ const registerUser = async (req, res, next) => {
 
     // Return the user
     return res.status(201).json({
-      user: user.sanitize()
+      data: user
     })
   } catch (error) {
     // If there is an error, return an error
@@ -61,20 +57,9 @@ const loginUser = async (req, res, next) => {
     // Get the user data from the request
     const { identifier, password } = req.body
     // Check if the user exists
-    const user = await User.findOne({
-      $or: [{ username: identifier }, { email: identifier }]
-    })
+    const user = await userService.verifyUserCredentials(identifier, password)
     // If the user does not exist, return an error
-    if (!user) {
-      return next({
-        status: 401,
-        message: "Invalid credentials"
-      })
-    }
-    // Check if the password is correct
-    const isPasswordValid = await user.comparePassword(password)
-    // If the password is incorrect, return an error
-    if (!isPasswordValid) {
+    if (!user) {  
       return next({
         status: 401,
         message: "Invalid credentials"
@@ -87,7 +72,7 @@ const loginUser = async (req, res, next) => {
     setAuthCookie(res, token)
 
     return res.status(200).json({
-      message: `${user.username} logged in successfully`
+      data: `${user.username} logged in successfully`
     })
   } catch (error) {
     return next({

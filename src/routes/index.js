@@ -3,7 +3,6 @@ const router = express.Router()
 const passport = require("passport")
 const session = require("express-session")
 const authRouter = require("./auth.route")
-const userRouter = require("./user.route")
 const errorHandlingMiddleware = require("../middlewares/errorHandling")
 
 // Initialize passport
@@ -41,7 +40,6 @@ passport.deserializeUser(function (obj, done) {
 })
 
 router.use("/auth", authRouter)
-router.use("/user", userRouter)
 router.use(errorHandlingMiddleware)
 
 module.exports = router

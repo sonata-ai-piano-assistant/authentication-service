@@ -1,5 +1,3 @@
-const User = require("../models/user.model")
-
 const generateToken = (userID) => {
   const jwt = require("jsonwebtoken")
   return jwt.sign(
@@ -21,14 +19,6 @@ const generateRandomUsername = async (email) => {
     "-" +
     Math.floor(Math.random() * 1000) +
     Math.random().toString(36).substring(2, 10)
-
-  // Check if the username already exists
-  const existingUser = await User.findOne({
-    username: randomUsername
-  })
-  if (existingUser) {
-    return generateRandomUsername(email)
-  }
   return randomUsername
 }
 

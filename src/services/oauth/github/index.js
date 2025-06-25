@@ -1,7 +1,6 @@
 const GitHubStrategy = require("passport-github2").Strategy
 const passport = require("passport")
-const User = require("../../../models/user.model")
-const { createUser } = require("../../user.service")
+const { createUser, findUserByEmailOrOAuth } = require("../../user.service")
 
 module.exports = passport.use(
   process.env.GITHUB_STRATEGY_NAME,
@@ -20,19 +19,11 @@ module.exports = passport.use(
       let userToReturn = null
       try {
         // Find user with matching GITHUB ID
-        const existingUser = await User.findOne({
-          $or: [
-            { email: profile.email },
-            {
-              oauthAccounts: {
-                $elemMatch: {
-                  provider: process.env.GITHUB_STRATEGY_NAME,
-                  oauthId: profile.id
-                }
-              }
-            }
-          ]
-        })
+        const existingUser = await findUserByEmailOrOAuth(
+          profile.email,
+          process.env.GITHUB_STRATEGY_NAME,
+          profile.id
+        )
         if (!existingUser) {
           // User doesn't exist yet, create a new user
           const newUserData = {
