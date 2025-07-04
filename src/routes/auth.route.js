@@ -37,7 +37,7 @@ router.get(
 
 router.post("/login", authController.loginUser)
 router.post("/register", authController.registerUser)
-router.get("/validate-token", authController.isAuthenticated)
+router.post("/validate-token", authController.isAuthenticated)
 
 router.get("/logout", function (req, res, next) {
   req.logout(function (err) {

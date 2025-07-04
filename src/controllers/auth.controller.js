@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken")
 const userService = require("../services/user.service")
 const { generateToken } = require("../utils")
-const setAuthCookie = require("../utils/setAuthCookie")
 
 const registerUser = async (req, res, next) => {
   try {
@@ -67,14 +66,15 @@ const loginUser = async (req, res, next) => {
         message: "Invalid credentials"
       })
     }
+    console.log({ user })
+
     // Set the user ID in the session
-    req.session.userId = user._id
+    req.session.userId = user.id
     // Return the user token
-    const token = generateToken(user._id)
-    setAuthCookie(res, token)
+    const token = generateToken(user.id)
 
     return res.status(200).json({
-      data: `${user.username} logged in successfully`
+      token
     })
   } catch (error) {
     return next({
@@ -87,26 +87,19 @@ const loginUser = async (req, res, next) => {
 const isAuthenticated = async (req, res, next) => {
   try {
     // Get the user token from the request
-    const token = req.headers.authorization.split(" ")[1]
+    const { token } = req.body
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     // Find the user by ID
-    const user = await userService.findById(decoded.id)
-    // If the user does not exist, return an error
-    if (!user) {
-      return next({
-        status: 401,
-        message: "Invalid token"
-      })
-    }
+    const user = await userService.getUserById(decoded.id)
     // Attach the user to the request object
     return res.status(200).json({
-      user: user.sanitize()
+      user
     })
   } catch (error) {
     return next({
       status: 401,
-      message: "Invalid token"
+      message: `Unauthorized: ${error.message}`
     })
   }
 }
