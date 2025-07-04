@@ -55,7 +55,8 @@ module.exports = passport.use(
         const existingUser = await findUserByEmailOrOAuth(
           profile.emails[0].value,
           process.env.MICROSOFT_STRATEGY_NAME,
-          profile.id)
+          profile.id
+        )
         // User doesn't exist yet, create a new user
         if (!existingUser) {
           const userData = await getUserDataFromMicrosoftGraph(accessToken)

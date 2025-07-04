@@ -8,7 +8,9 @@ const registerUser = async (req, res, next) => {
     // Get the user data from the request
     const { firstname, lastname, username, email, password } = req.body
     // Check if the user already exists
-    const existingUser = await userService.getUserByIdentifier(email) || await userService.getUserByIdentifier(username)
+    const existingUser =
+      (await userService.getUserByIdentifier(email)) ||
+      (await userService.getUserByIdentifier(username))
     // If the user already exists, return an error
     if (existingUser) {
       return next({
@@ -59,7 +61,7 @@ const loginUser = async (req, res, next) => {
     // Check if the user exists
     const user = await userService.verifyUserCredentials(identifier, password)
     // If the user does not exist, return an error
-    if (!user) {  
+    if (!user) {
       return next({
         status: 401,
         message: "Invalid credentials"
@@ -89,7 +91,7 @@ const isAuthenticated = async (req, res, next) => {
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     // Find the user by ID
-    const user = await User.findById(decoded.id)
+    const user = await userService.findById(decoded.id)
     // If the user does not exist, return an error
     if (!user) {
       return next({

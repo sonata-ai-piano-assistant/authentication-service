@@ -125,9 +125,36 @@ const verifyUserCredentials = async (identifier, password) => {
   }
 }
 
+/**
+ * @param {string} userId - The ID of the user to retrieve
+ * @returns {Promise<Object>} The user object if found, otherwise throws an error
+ * @description Retrieves a user by their ID by sending a request to the database service.
+ */
+const getUserById = async (userId) => {
+  try {
+    const response = await fetch(
+      `${process.env.DATABASE_SERVICE_URL}/users/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    )
+    if (!response.ok) {
+      throw new Error("Failed to get user by ID")
+    }
+    const json = await response.json()
+    return json.data
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 module.exports = {
   createUser,
   findUserByEmailOrOAuth,
   getUserByIdentifier,
-  verifyUserCredentials
+  verifyUserCredentials,
+  getUserById
 }
