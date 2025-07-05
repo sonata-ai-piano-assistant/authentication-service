@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken")
 const userService = require("../services/user.service")
+const notificationService = require("../services/notification.service")
 const { generateToken } = require("../utils")
 
 const registerUser = async (req, res, next) => {
@@ -26,19 +27,18 @@ const registerUser = async (req, res, next) => {
       password
     })
 
-    // Send a welcome email
-    // await fetch(`${process.env.EMAIL_SERVICE_URL}/send-email`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${process.env.EMAIL_SERVICE_API_KEY}`
-    //   },
-    //   body: JSON.stringify({
-    //     to: user.email,
-    //     subject: "Welcome to Our Service",
-    //     text: `Hello ${user.firstname},\n\nThank you for registering with us! We're excited to have you on board.\n\nBest regards,\nThe Team`
-    //   })
-    // })
+    try {
+      await notificationService.sendRegistrationEmail({
+        userId: user.id,
+        email: user.email,
+        consent: true
+      })
+    } catch (e) {
+      console.error(
+        `"Erreur lors de l'envoi de l'email de confirmation de l'utilisateur ${user.email}:"`,
+        e.message
+      )
+    }
 
     // Return the user
     return res.status(201).json({
