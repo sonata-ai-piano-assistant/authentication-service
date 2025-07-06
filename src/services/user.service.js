@@ -1,6 +1,7 @@
 /**
  *
  * @param {Object} user
+ * @param {string} user.id - The unique identifier for the user
  * @param {string} user.username - The username of the user
  * @param {string} user.email - The email of the user
  * @param {string} user.password - The password of the user
