@@ -11,6 +11,7 @@ require("dotenv").config()
 const app = express()
 const port = process.env.PORT
 const apiRouter = require("./routes")
+const loggerMiddleware = require("./middlewares/logger.middleware")
 
 app.use(cors())
 app.use(express.json())
@@ -20,7 +21,7 @@ initializeMetrics("authentification")
 
 // 📊 MIDDLEWARE MÉTRIQUES
 app.use(metricsMiddleware)
-
+app.use(loggerMiddleware)
 // 🛣️ ROUTES MÉTRIQUES
 app.use(metricsRouter)
 
