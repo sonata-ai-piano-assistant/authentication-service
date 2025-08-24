@@ -30,6 +30,11 @@ app.get("/", (_, res) => {
 })
 app.use("/api", apiRouter)
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`)
-})
+// Only start server if not in test environment
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`)
+  })
+}
+
+module.exports = app
