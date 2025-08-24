@@ -56,9 +56,12 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
   try {
     // Get the user data from the request
-    const { identifier, password } = req.body
+    const { identifier, password, email } = req.body
     // Check if the user exists
-    const user = await userService.verifyUserCredentials(identifier, password)
+    const user = await userService.verifyUserCredentials(
+      identifier || email,
+      password
+    )
     // If the user does not exist, return an error
     if (!user) {
       return next({
